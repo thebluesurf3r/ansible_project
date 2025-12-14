@@ -1,0 +1,16 @@
+---
+- name: Force Nginx Restart and Verify File
+  hosts: webservers
+  tasks:
+    - name: 1. Force a full Nginx restart
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+
+    - name: 2. Check the contents of the deployed index.html file
+      ansible.builtin.shell: cat /var/www/html/index.html
+      register: file_content
+
+    - name: 3. Display file content to confirm deployment
+      ansible.builtin.debug:
+        var: file_content.stdout
