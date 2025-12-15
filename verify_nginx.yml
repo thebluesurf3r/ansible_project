@@ -1,0 +1,24 @@
+---
+- name: Verify Nginx Status
+  hosts: webservers
+  gather_facts: yes
+
+  tasks:
+    - name: 1. Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: 2. Check Nginx running status
+      ansible.builtin.debug:
+        msg: "Nginx Status: running={{ ansible_facts.services['nginx.service'].state == 'running' }}, enabled={{ ansible_facts.services['nginx.service'].status == 'enabled' }}"
+      when: ansible_facts.services['nginx.service'] is defined
+
+    - name: 3. Verify final HTTP reachability from the Tools Machine (optional, but good)
+      ansible.builtin.uri:
+        url: http://{{ ansible_host }}
+        status_code: 200
+        validate_certs: no
+      register: http_check
+
+    - name: 4. Display HTTP Check Result
+      ansible.builtin.debug:
+        msg: "HTTP Verification Successful: {{ http_check.json.content | default('Nginx Default Page') }}"
